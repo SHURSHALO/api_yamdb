@@ -14,7 +14,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
- 
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
@@ -42,6 +42,14 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TitleGenre(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    def str(self):
+        return f"{self.title.name} - {self.genre.name}"
 
 
 class Review(models.Model):
