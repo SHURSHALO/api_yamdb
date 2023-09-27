@@ -8,15 +8,14 @@ router_v1.register(r'titles', TitleViewSet),
 router_v1.register(r'categories', CategoryViewSet)
 router_v1.register(r'genres', GenreViewSet)
 
+
 #   REVIEWS
-router_v1.register(
-    r'titles/(?P<titles_id>\d+)/reviews/', ReviewsViewSet, basename='reviews'
-)
+router_v1.register(r'titles/(?P<title_id>\d+)/reviews', ReviewsViewSet, basename='reviews')
 
 
 #   COMMENTS
 router_v1.register(
-    r'titles/(?P<titles_id>\d+)/reviews/(?P<review_id>\d+)/comments/', CommentsViewSet, basename='comments'
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments', CommentsViewSet, basename='comments'
 )
 
 

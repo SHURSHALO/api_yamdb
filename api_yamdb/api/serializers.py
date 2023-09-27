@@ -13,7 +13,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-    title = serializers.PrimaryKeyRelatedField(read_only=True)
+    title = serializers.HiddenField(default=None)
 
     class Meta:
         fields = ('id', 'title', 'text', 'author', 'score', 'pub_date')
