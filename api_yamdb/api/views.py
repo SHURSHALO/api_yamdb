@@ -4,7 +4,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from reviews.models import Review, Comment
 from api.serializers import ReviewSerializer, CommentSerializer
 from rest_framework import permissions
-from api_yamdb.api.permissions import OnlyAuthorHasPerm, ReadOnly, ModeratorPermission
+from api.permissions import OnlyAuthorHasPerm, ReadOnly, ModeratorPermission
 from rest_framework import viewsets, pagination, mixins, filters
 
 from reviews.models import Title, Genre, Category
