@@ -1,37 +1,39 @@
 
 from rest_framework import viewsets
-
-
-from api.models import Сategories, Genres, Reviews, Comments, Titles
-from api.serializers import СategoriesSerializer, GenresSerializer, ReviewsSerializer, CommentsSerializer, TitlesSerializer
-
-
-class СategoriesViewSet(viewsets.ModelViewSet):
-
-    queryset = Сategories.objects.all()
-    serializer_class = СategoriesSerializer
-
-
-class GenresViewSet(viewsets.ReadOnlyModelViewSet):
-
-    queryset = Genres.objects.all()
-    serializer_class = GenresSerializer
+from rest_framework.pagination import LimitOffsetPagination
+from api.models import Review, Comment
+from api.serializers import ReviewSerializer, CommentSerializer
+from rest_framework import permissions
+from api.permission import OnlyAuthorHasPerm, ReadOnly, ModeratorPermission
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
 
-    queryset = Reviews.objects.all()
-    serializer_class = ReviewsSerializer
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    pagination_class = LimitOffsetPagination
 
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (permissions.IsAuthenticatedOrReadOnly())
+        elif self.request.user.is_authenticated:
+            return (ModeratorPermission(),)
+        return (OnlyAuthorHasPerm(),)
 
-class TitlesViewSet(viewsets.ModelViewSet):
-
-    queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
 
-    queryset = Comments.objects.all()
-    serializer_class = CommentsSerializer
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    pagination_class = LimitOffsetPagination
 
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return (permissions.IsAuthenticatedOrReadOnly())
+        return (OnlyAuthorHasPerm(),)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
