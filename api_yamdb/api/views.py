@@ -14,7 +14,6 @@ from .serializers import TitleSerializer, GenreSerializer, CategorySerializer
 
 class ReviewsViewSet(viewsets.ModelViewSet):
 
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
 
@@ -44,13 +43,14 @@ class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
 
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (permissions.IsAuthenticatedOrReadOnly())
-        return (OnlyAuthorHasPerm(),)
+    def get_reviews(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        return self.get_reviews().comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
