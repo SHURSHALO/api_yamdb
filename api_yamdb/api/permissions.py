@@ -20,7 +20,7 @@ class ReadOnly(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class ModeratorOrAuthPermission()(permissions.BasePermission):
+class ModeratorOrAuthPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         # Здесь предполагается, что у пользователя есть атрибут 'is_moderator',
         # который показывает его роль в системе. Вы можете адаптировать это под
