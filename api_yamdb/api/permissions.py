@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class OnlyAuthorHasPerm(permissions.BasePermission):
+class AuthorOrReadOnly(permissions.BasePermission):
     '''Кастомное разрешение, разрешает доступ только автору объекта.'''
 
     def has_permission(self, request, view):
@@ -20,12 +20,12 @@ class ReadOnly(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class ModeratorPermission(permissions.BasePermission):
+class ModeratorOrAuthPermission()(permissions.BasePermission):
     def has_permission(self, request, view):
         # Здесь предполагается, что у пользователя есть атрибут 'is_moderator',
         # который показывает его роль в системе. Вы можете адаптировать это под
         # свою систему ролей или аутентификации.
-        return request.user.is_authenticated and request.user.is_moderator
+        return request.user.is_authenticated or request.user.is_moderator
 
     def has_object_permission(self, request, view, obj):
         # Проверяем, является ли пользователь автором объекта или модератором.
