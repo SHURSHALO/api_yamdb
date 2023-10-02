@@ -1,3 +1,4 @@
+
 Как запустить проект:
 Все описанное ниже относится к ОС Linux.
 
@@ -14,3 +15,8 @@ source venv/bin/activate
 python -m pip install --upgrade pip 
 Ставим зависимости из requirements.txt:
 pip install -r api_yamdb/requirements.txt 
+
+# api_yamdb
+api_yamdb
+dfgdfdggggggggggggg
+fgbf
