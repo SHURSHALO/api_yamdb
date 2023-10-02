@@ -1,5 +1,9 @@
 
 from rest_framework import serializers
+
+from reviews.models import Category, Genre, Title
+from users.models import User
+
 from reviews.models import Comment, Review
 import datetime
 from rest_framework.validators import UniqueTogetherValidator
@@ -8,6 +12,7 @@ from rest_framework.validators import UniqueValidator
 from rest_framework.generics import get_object_or_404
 from reviews.models import Category, Genre, Title
 from users.models import User
+
 
 from .validators import validate_email, validate_me, validate_username
 
