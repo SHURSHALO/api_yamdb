@@ -6,9 +6,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg
 
 
-User = get_user_model()
-
-
 class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
@@ -153,4 +150,8 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text[:15]
+
+
+
+
 
