@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Title, Category, Genre
+from .models import Title, Category, Genre, User
 
 
 @admin.register(Title)
@@ -17,3 +17,5 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
+admin.site.register(User)
