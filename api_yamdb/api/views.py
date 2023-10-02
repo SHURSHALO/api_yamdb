@@ -5,18 +5,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (filters, mixins, pagination, permissions, status,
                             viewsets)
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
 from reviews.models import Category, Genre, Title
 from users.models import User
-
-from .permissions import (IsAdminOrModeratorOrAuthor, IsSuperUserOrAdmin,
-                          ReadOnly)
+from .permissions import (IsSuperUserOrAdmin, IsAdminOrReadOnly)
 from .serializers import (CategorySerializer, CreateUserSerializer,
                           GenreSerializer, JWTTokenCreateSerializer,
                           TitleSerializer, UserSerializer)
 from .utils import send_confirmation_code
+from .filters import TitleFilter
 
 
 class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
@@ -28,10 +27,10 @@ class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    pagination_class = pagination.LimitOffsetPagination  # Или глобально
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('category', 'genre', 'name', 'year')
-    # permission_classes = IsAdminOrReadOnly
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = TitleFilter
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -41,7 +40,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = IsAdminOrReadOnly
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -51,7 +50,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = IsAdminOrReadOnly
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -84,7 +83,7 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """Представление  для создания JWT-токена и
+    """Представление для создания JWT-токена и
     отправки кода для его получения."""
 
     queryset = User.objects.all()
@@ -96,7 +95,7 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data.get("username")
         confirmation_code = serializer.validated_data.get('confirmation_code')
-        try:    
+        try:
             user = get_object_or_404(User, username=username)
         except User.DoesNotExist:
             message = {"Пользователь не найден."}
@@ -111,7 +110,7 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Представление  для управления пользователями."""
+    """Представление для управления пользователями."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -145,4 +144,3 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-

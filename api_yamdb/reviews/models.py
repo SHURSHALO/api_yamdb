@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Avg
 
@@ -20,12 +21,12 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
+    year = models.PositiveIntegerField()
     category = models.ForeignKey(Category, null=True,
                                  on_delete=models.SET_NULL,
                                  related_name='titles')
-    genre = models.ManyToManyField(Genre, related_name='titles')
-    year = models.PositiveIntegerField()
     description = models.TextField(null=True)
+    genre = models.ManyToManyField(Genre, related_name='titles')
 
     def average_rating(self):
         reviews = self.reviews.all()
