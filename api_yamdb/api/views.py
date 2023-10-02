@@ -95,14 +95,14 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data.get("username")
-
-        try:
+        confirmation_code = serializer.validated_data.get('confirmation_code')
+        try:    
             user = get_object_or_404(User, username=username)
         except User.DoesNotExist:
             message = {"Пользователь не найден."}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
 
-        if default_token_generator.check_token(user, ""):
+        if default_token_generator.check_token(user, confirmation_code):
             message = {"Ваш token -": str(AccessToken.for_user(user))}
             return Response(message, status=status.HTTP_200_OK)
 
