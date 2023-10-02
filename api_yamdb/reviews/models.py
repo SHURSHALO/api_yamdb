@@ -4,71 +4,8 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg
+from users.models import User
 
-
-class User(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
-    ROLES = [
-        (USER, USER),
-        (ADMIN, ADMIN),
-        (MODERATOR, MODERATOR),
-    ]
-
-    username = models.CharField(max_length=150,
-                                unique=True,
-                                blank=False,
-                                null=False,
-                                )
-    email = models.EmailField(max_length=254,
-                              unique=True,
-                              blank=False,
-                              null=False,
-                              )
-    role = models.CharField('роль',
-                            max_length=20,
-                            choices=ROLES,
-                            default=USER,
-                            blank=True,
-                            )
-    bio = models.TextField('биография',
-                           blank=True,
-                           )
-    first_name = models.CharField('Имя',
-                                  max_length=150,
-                                  blank=True,
-                                  )
-    last_name = models.CharField('Фамилия',
-                                 max_length=150,
-                                 blank=True,
-                                 )
-    confirmation_code = models.CharField('Код подтверждения',
-                                         max_length=260,
-                                         null=True,
-                                         blank=False,
-                                         default='AAAA'
-                                         )
-    
-    @property
-    def is_user(self):
-        return self.role == self.USER
-    
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
-    
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
-    
-    class Meta:
-        ordering = ('id',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    def __str__(self):
-        return self.username
 
 class Category(models.Model):
     name = models.CharField(max_length=256, )
@@ -88,12 +25,12 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
+    year = models.PositiveIntegerField()
     category = models.ForeignKey(Category, null=True,
                                  on_delete=models.SET_NULL,
                                  related_name='titles')
-    genre = models.ManyToManyField(Genre, related_name='titles')
-    year = models.PositiveIntegerField()
     description = models.TextField(null=True)
+    genre = models.ManyToManyField(Genre, related_name='titles')
 
     def average_rating(self):
         reviews = self.reviews.all()

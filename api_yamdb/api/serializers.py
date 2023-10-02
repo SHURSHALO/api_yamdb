@@ -1,6 +1,7 @@
 
 from rest_framework import serializers
 
+from rest_framework import serializers, exceptions
 from reviews.models import Category, Genre, Title
 from users.models import User
 
@@ -11,7 +12,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.generics import get_object_or_404
 from reviews.models import Category, Genre, Title
-from users.models import User
+
 
 
 from .validators import validate_email, validate_me, validate_username
@@ -86,6 +87,18 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        if self.context['request'].method == 'PUT':
+            raise exceptions.MethodNotAllowed('PUT method is not allowed')
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['genre'] = GenreSerializer(instance.genre.all(),
+                                                  many=True).data
+        representation['category'] = CategorySerializer(instance.category).data
+        return representation
+
     def validate(self, attrs):
         year = attrs.get('year')
         current_year = datetime.datetime.now().year
@@ -98,13 +111,13 @@ class TitleSerializer(serializers.ModelSerializer):
 class CreateUserSerializer(serializers.ModelSerializer):
     """ Сериализатор для создания User. """
 
-    email = serializers.EmailField(max_length=254, required=True,)
+    email = serializers.EmailField(max_length=254, required=True, )
     username = serializers.RegexField(
         regex=r"^[\w.@+-]+$", max_length=150, required=True,
     )
 
     class Meta:
-        model=User
+        model = User
         fields = (
             'email',
             'username',
@@ -119,11 +132,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class JWTTokenCreateSerializer(serializers.ModelSerializer):
     """ Сериализатор для создания jwt токена. """
 
-    username = serializers.CharField(required=True,)
-    confirmation_code = serializers.CharField(required=True,)
+    username = serializers.CharField(required=True, )
+    confirmation_code = serializers.CharField(required=True, )
 
     class Meta:
-        model=User
+        model = User
         fields = (
             "username",
             "confirmation_code",
