@@ -145,9 +145,10 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """Представление  для создания JWT-токена и"""
-
-    """Представление для создания JWT-токена и отправки кода для его получения."""
+    """
+    Представление для создания JWT-токена и отправки кода
+    для его получения.
+    """
 
     queryset = User.objects.all()
     serializer_class = JWTTokenCreateSerializer
