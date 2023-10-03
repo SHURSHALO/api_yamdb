@@ -1,18 +1,22 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from api.views import CategoryViewSet, GenreViewSet, CommentsViewSet, TitleViewSet, ReviewsViewSet
-
-from .views import TitleViewSet, GenreViewSet, UsersViewSet
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from .views import (CategoryViewSet, GenreViewSet, TitleViewSet, UserCreateViewSet, UserGetTokenViewSet, UserViewSet)
+from api.views import (
+    CategoryViewSet,
+    GenreViewSet,
+    CommentsViewSet,
+    TitleViewSet,
+    ReviewsViewSet,
+)
 
-from rest_framework.routers import DefaultRouter, SimpleRouter
-
-from .views import (CategoryViewSet, GenreViewSet, TitleViewSet, UserCreateViewSet, UserGetTokenViewSet, UserViewSet)
-
-from rest_framework.routers import DefaultRouter
-from api.views import CategoryViewSet, GenreViewSet, CommentsViewSet, TitleViewSet, ReviewsViewSet
+from api.views import (
+    CategoryViewSet,
+    GenreViewSet,
+    TitleViewSet,
+    UserCreateViewSet,
+    UserGetTokenViewSet,
+    UserViewSet,
+)
 
 
 router_v1 = DefaultRouter()
@@ -28,12 +32,16 @@ auth_router_v1.register(r'token', UserGetTokenViewSet, basename='token')
 
 
 #   REVIEWS
-router_v1.register(r'titles/(?P<title_id>\d+)/reviews', ReviewsViewSet, basename='reviews')
+router_v1.register(
+    r'titles/(?P<title_id>\d+)/reviews', ReviewsViewSet, basename='reviews'
+)
 
 
 #   COMMENTS
 router_v1.register(
-    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments', CommentsViewSet, basename='comments'
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentsViewSet,
+    basename='comments',
 )
 
 

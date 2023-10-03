@@ -1,7 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
 
-import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,24 +19,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'api',
     'users.apps.UsersConfig',
-    'reviews',
     'rest_framework.authtoken',
-
     'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
-
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
 }
 
 MIDDLEWARE = [
@@ -111,7 +105,8 @@ AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'],
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
