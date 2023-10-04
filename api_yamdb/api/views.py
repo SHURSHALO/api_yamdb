@@ -2,36 +2,100 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (filters, mixins, pagination, permissions, status,
-                            viewsets)
+from rest_framework import (
+    filters,
+    mixins,
+    pagination,
+    permissions,
+    status,
+    viewsets,
+)
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Category, Genre, Title
+
+from api.permissions import (
+    IsAdminOrModeratorOrAuthor,
+    IsSuperUserOrAdmin,
+    IsAdminOrReadOnly,
+)
+from api.serializers import (
+    CategorySerializer,
+    CreateUserSerializer,
+    GenreSerializer,
+    JWTTokenCreateSerializer,
+    TitleSerializer,
+    UserSerializer,
+    ReviewSerializer,
+    CommentSerializer,
+)
+from api.utils import send_confirmation_code
+from api.filters import TitleFilter
+
+from reviews.models import Title, Genre, Category, Review, Comment
 from users.models import User
 
-from .permissions import (IsAdminOrModeratorOrAuthor, IsSuperUserOrAdmin,
-                          ReadOnly)
-from .serializers import (CategorySerializer, CreateUserSerializer,
-                          GenreSerializer, JWTTokenCreateSerializer,
-                          TitleSerializer, UserSerializer)
-from .utils import send_confirmation_code
+
+class ReviewsViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    pagination_class = pagination.LimitOffsetPagination
+
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        return self.get_title().reviews.all()
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [permissions.AllowAny()]
+        elif self.action == 'retrieve':
+            return [permissions.AllowAny()]
+        return [IsAdminOrModeratorOrAuthor()]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
-class CreateListDestroyViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                               mixins.DestroyModelMixin,
-                               viewsets.GenericViewSet):
+class CommentsViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get_reviews(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        return self.get_reviews().comments.all()
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [permissions.AllowAny()]
+        elif self.action == 'retrieve':
+            return [permissions.AllowAny()]
+        return [IsAdminOrModeratorOrAuthor()]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, review=self.get_reviews())
+
+
+class CreateListDestroyViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     pass
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    pagination_class = pagination.LimitOffsetPagination  # Или глобально
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('category', 'genre', 'name', 'year')
-    # permission_classes = IsAdminOrReadOnly
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = TitleFilter
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class GenreViewSet(CreateListDestroyViewSet):
@@ -41,7 +105,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = IsAdminOrReadOnly
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -51,7 +115,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    # permission_classes = IsAdminOrReadOnly
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -64,7 +128,6 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         try:
             user, created = User.objects.get_or_create(
                 **serializer.validated_data
@@ -73,19 +136,19 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 user.email,
                 default_token_generator.make_token(user),
             )
-
             return Response(
                 serializer.data,
                 status=status.HTTP_200_OK,
             )
-
         except ValidationError as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """Представление  для создания JWT-токена и
-    отправки кода для его получения."""
+    """
+    Представление для создания JWT-токена и отправки кода
+    для его получения.
+    """
 
     queryset = User.objects.all()
     serializer_class = JWTTokenCreateSerializer
@@ -96,22 +159,23 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data.get("username")
         confirmation_code = serializer.validated_data.get('confirmation_code')
-        try:    
+
+        try:
             user = get_object_or_404(User, username=username)
         except User.DoesNotExist:
             message = {"Пользователь не найден."}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
-
         if default_token_generator.check_token(user, confirmation_code):
             message = {"Ваш token -": str(AccessToken.for_user(user))}
             return Response(message, status=status.HTTP_200_OK)
-
         message = {"Неправильный код подтверждения."}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Представление  для управления пользователями."""
+
+    """Представление для управления пользователями."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -129,15 +193,12 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         """Получение данных о пользователе."""
-
         serializer = self.get_serializer(
             request.user, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
-
         if request.method == "GET":
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         try:
             serializer.validated_data["role"] = request.user.role
             serializer.save()
@@ -145,4 +206,3 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
