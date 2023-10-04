@@ -1,9 +1,10 @@
 from rest_framework import serializers
+
 from users.models import User
 
 
 def validate_me(data):
-    """ Проверка, что нельзя поставить username = 'me' """
+    """Проверка, что нельзя поставить username = 'me'"""
 
     if data.get('username') == 'me':
         raise serializers.ValidationError('Такое имя запрещено')

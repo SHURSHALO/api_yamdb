@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-from .utils import Role
+from users.utils import Role
 
 
 class User(AbstractUser):
@@ -60,6 +60,14 @@ class User(AbstractUser):
     def is_admin(self):
         """Возвращает True, если пользователь является администратором."""
         return self.role == Role.admin.name
+
+    def __str__(self):
+        return self.username
+
+    @property  # ewsfsdvvee
+    def is_moder(self):
+        """Возвращает True, если пользователь является администратором."""
+        return self.role == Role.moderator.name
 
     def __str__(self):
         return self.username

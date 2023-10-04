@@ -1,11 +1,14 @@
 from django.contrib import admin
 
-from .models import Title, Category, Genre
+from reviews.models import Title, Category, Genre
 
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category',)
+    list_display = (
+        'name',
+        'category',
+    )
     search_fields = ('name',)
 
 
