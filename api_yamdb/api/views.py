@@ -8,7 +8,7 @@ from rest_framework import (
     pagination,
     permissions,
     status,
-    viewsets,
+    viewsets, exceptions,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -96,6 +96,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
+
+    def update(self, request, *args, **kwargs):
+        if self.request.method == 'PUT':
+            raise exceptions.MethodNotAllowed('PUT method is not allowed')
+        return super().update(request, *args, **kwargs)
 
 
 class GenreViewSet(CreateListDestroyViewSet):
