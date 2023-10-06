@@ -1,4 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings as conf_settings
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -124,7 +125,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
 
 
 class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """Представление для создания пользователя."""
+    '''Представление для создания пользователя.'''
 
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
@@ -133,27 +134,24 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user, created = User.objects.get_or_create(
-                **serializer.validated_data
-            )
-            send_confirmation_code(
-                user.email,
-                default_token_generator.make_token(user),
-            )
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK,
-            )
-        except ValidationError as e:
-            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        user, created = User.objects.get_or_create(
+            **serializer.validated_data
+        )
+        send_confirmation_code(
+            user.email,
+            default_token_generator.make_token(user),
+        )
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    """
+    '''
     Представление для создания JWT-токена и отправки кода
     для его получения.
-    """
+    '''
 
     queryset = User.objects.all()
     serializer_class = JWTTokenCreateSerializer
@@ -162,50 +160,48 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data.get("username")
+        username = serializer.validated_data.get('username')
         confirmation_code = serializer.validated_data.get('confirmation_code')
 
         try:
             user = get_object_or_404(User, username=username)
         except User.DoesNotExist:
-            message = {"Пользователь не найден."}
+            message = {'Пользователь не найден.'}
             return Response(message, status=status.HTTP_404_NOT_FOUND)
         if default_token_generator.check_token(user, confirmation_code):
-            message = {"Ваш token -": str(AccessToken.for_user(user))}
+            message = {'Ваш token -': str(AccessToken.for_user(user))}
             return Response(message, status=status.HTTP_200_OK)
-        message = {"Неправильный код подтверждения."}
+        message = {'Неправильный код подтверждения.'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Представление  для управления пользователями."""
-
-    """Представление для управления пользователями."""
+    '''Представление  для управления пользователями.'''
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ["get", "post", "patch", "delete"]
+    http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsSuperUserOrAdmin,)
     filter_backends = [filters.SearchFilter]
-    search_fields = ["=username"]
-    lookup_field = "username"
+    search_fields = ['=username']
+    lookup_field = 'username'
 
     @action(
         detail=False,
-        url_path="me",
+        url_path=conf_settings.ME,
         permission_classes=[permissions.IsAuthenticated],
-        methods=["get", "patch"],
+        methods=['get', 'patch'],
     )
     def me(self, request):
-        """Получение данных о пользователе."""
+        '''Получение данных о пользователе.'''
         serializer = self.get_serializer(
             request.user, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
-        if request.method == "GET":
+        if request.method == 'GET':
             return Response(serializer.data, status=status.HTTP_200_OK)
         try:
-            serializer.validated_data["role"] = request.user.role
+            serializer.validated_data['role'] = request.user.role
             serializer.save()
         except ValidationError as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)

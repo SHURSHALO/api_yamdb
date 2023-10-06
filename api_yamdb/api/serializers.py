@@ -105,14 +105,14 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания User."""
+    '''Сериализатор для создания User.'''
 
     email = serializers.EmailField(
         max_length=254,
         required=True,
     )
     username = serializers.RegexField(
-        regex=r"^[\w.@+-]+$",
+        regex=r'^[\w.@+-]+$',
         max_length=150,
         required=True,
     )
@@ -131,7 +131,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class JWTTokenCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания jwt токена."""
+    '''Сериализатор для создания jwt токена.'''
 
     username = serializers.CharField(
         required=True,
@@ -143,23 +143,23 @@ class JWTTokenCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "username",
-            "confirmation_code",
+            'username',
+            'confirmation_code',
         )
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания пользователя."""
+    '''Сериализатор для создания пользователя.'''
 
     class Meta:
         model = User
         fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "role",
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
         )
 
     validators = [

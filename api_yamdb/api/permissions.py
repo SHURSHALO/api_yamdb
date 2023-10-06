@@ -19,7 +19,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 
 class IsAdminOrModeratorOrAuthor(permissions.BasePermission):
-    """Доступ только для администратора, модератора и автора объекта."""
+    '''Доступ только для администратора, модератора и автора объекта.'''
 
     def has_permission(self, request, view):
         if (
@@ -27,7 +27,7 @@ class IsAdminOrModeratorOrAuthor(permissions.BasePermission):
                 or request.user.is_authenticated
         ):
             return True
-        raise AuthenticationFailed("Требуется авторизация")
+        raise AuthenticationFailed('Требуется авторизация')
 
     def has_object_permission(self, request, view, obj):
         if (
@@ -35,16 +35,20 @@ class IsAdminOrModeratorOrAuthor(permissions.BasePermission):
                 or request.user.is_authenticated
         ):
             return (
-                    request.method in permissions.SAFE_METHODS
-                    or request.user.role in ["admin", "moderator"]
-                    or request.user.is_superuser
-                    or obj.author == request.user
+            request.method in permissions.SAFE_METHODS
+            or request.user.role in ['admin', 'moderator']
+            or request.user.is_superuser
+            or obj.author == request.user
+            request.method in permissions.SAFE_METHODS
+            or request.user.role in ["admin", "moderator"]
+            or request.user.is_superuser
+            or obj.author == request.user
             )
-        raise AuthenticationFailed("Требуется авторизация")
+        raise AuthenticationFailed('Требуется авторизация')
 
 
 class IsSuperUserOrAdmin(permissions.BasePermission):
-    """Доступ только для суперпользователи или администратора."""
+    '''Доступ только для суперпользователи или администратора.'''
 
     def has_permission(self, request, view):
         return request.user.is_authenticated and (
