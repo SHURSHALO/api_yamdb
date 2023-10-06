@@ -1,14 +1,11 @@
-import datetime
-
 from rest_framework import serializers, exceptions
 from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Genre, Title, Comment, Review
 from users.models import User
-
+from reviews.utils import check_year_availability
 from api.validators import validate_email, validate_me, validate_username
-
-from rest_framework.exceptions import ValidationError
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -93,11 +90,6 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        if self.context['request'].method == 'PUT':
-            raise exceptions.MethodNotAllowed('PUT method is not allowed')
-        return super().update(instance, validated_data)
-
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['genre'] = GenreSerializer(
@@ -108,11 +100,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         year = attrs.get('year')
-        current_year = datetime.datetime.now().year
-        if year and year >= current_year:
-            raise serializers.ValidationError(
-                "Год должен быть меньше текущего года."
-            )
+        check_year_availability(year)
         return attrs
 
 
