@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from api_yamdb.settings import REGEX_USERNAME
 from reviews.models import Category, Genre, Title, Comment, Review
 from users.models import User
 from reviews.utils import check_year_availability, check_score
@@ -96,7 +97,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         required=True,
     )
     username = serializers.RegexField(
-        regex=r'^[\w.@+-]+$',
+        regex=REGEX_USERNAME,
         max_length=150,
         required=True,
     )
@@ -107,11 +108,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'email',
             'username',
         )
-        validators = [
+        validators = (
             validate_me,
             validate_email,
             validate_username,
-        ]
+        )
 
 
 class JWTTokenCreateSerializer(serializers.ModelSerializer):
@@ -146,6 +147,6 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
         )
 
-    validators = [
+    validators = (
         validate_me,
-    ]
+    )

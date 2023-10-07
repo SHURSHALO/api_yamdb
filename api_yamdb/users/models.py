@@ -14,14 +14,14 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
         db_index=True,
-        validators=[
+        validators=(
             RegexValidator(
                 regex=USERNAME_REGEX,
                 message='Неверное имя пользователя. '
                         'Допускаются только буквы, цифры и знак подчеркивания.'
                         ' Не может содержать символы «@», «.», «+» или «-».',
-            )
-        ],
+            ),
+        ),
         error_messages={
             'unique': 'Пользователь с таким именем уже существует.',
         },
@@ -50,11 +50,11 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('username', 'email'), name='unique_username&email'
-            )
-        ]
+            ),
+        )
 
     @property
     def is_admin(self):
@@ -68,4 +68,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-

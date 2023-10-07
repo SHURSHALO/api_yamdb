@@ -38,7 +38,7 @@ class IsAdminOrModeratorOrAuthor(permissions.BasePermission):
         ):
             return (
                 request.method in permissions.SAFE_METHODS
-                or request.user.role in ['admin', 'moderator']
+                or request.user.is_admin or request.user.is_moder
                 or request.user.is_superuser or obj.author == request.user
             )
         raise AuthenticationFailed('Требуется авторизация')

@@ -48,11 +48,11 @@ class ReviewsViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def get_permissions(self):
-        if self.action in ('list','retrieve'):
-            return [permissions.AllowAny()]
+        if self.action in ('list', 'retrieve'):
+            return (permissions.AllowAny(),)
         elif self.action == 'update':
             raise exceptions.MethodNotAllowed('PUT method is not allowed')
-        return [IsAdminOrModeratorOrAuthor()]
+        return (IsAdminOrModeratorOrAuthor(),)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
@@ -69,11 +69,11 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return self.get_reviews().comments.all()
 
     def get_permissions(self):
-        if self.action in ('list','retrieve'):
-            return [permissions.AllowAny()]
+        if self.action in ('list', 'retrieve'):
+            return (permissions.AllowAny(),)
         elif self.action == 'update':
             raise exceptions.MethodNotAllowed('PUT method is not allowed')
-        return [IsAdminOrModeratorOrAuthor()]
+        return (IsAdminOrModeratorOrAuthor(),)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_reviews())
@@ -132,7 +132,7 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, created = User.objects.get_or_create(
+        user, _ = User.objects.get_or_create(
             **serializer.validated_data
         )
         send_confirmation_code(
@@ -174,21 +174,21 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Представление  для управления пользователями."""
+    """Представление для управления пользователями."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ('get', 'post', 'patch', 'delete')
     permission_classes = (IsSuperUserOrAdmin,)
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['=username']
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('=username',)
     lookup_field = 'username'
 
     @action(
         detail=False,
         url_path=conf_settings.ME,
-        permission_classes=[permissions.IsAuthenticated],
-        methods=['get', 'patch'],
+        permission_classes=(permissions.IsAuthenticated,),
+        methods=('get', 'patch'),
     )
     def me(self, request):
         """Получение данных о пользователе."""
