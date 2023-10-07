@@ -48,7 +48,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def get_permissions(self):
-        if self.action in ['list','retrieve']:
+        if self.action in ('list','retrieve'):
             return [permissions.AllowAny()]
         elif self.action == 'update':
             raise exceptions.MethodNotAllowed('PUT method is not allowed')
@@ -69,7 +69,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return self.get_reviews().comments.all()
 
     def get_permissions(self):
-        if self.action in ['list','retrieve']:
+        if self.action in ('list','retrieve'):
             return [permissions.AllowAny()]
         elif self.action == 'update':
             raise exceptions.MethodNotAllowed('PUT method is not allowed')

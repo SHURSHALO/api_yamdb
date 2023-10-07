@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Genre, Title, Comment, Review
 from users.models import User
-from reviews.utils import check_year_availability
+from reviews.utils import check_year_availability, check_score
 from api.validators import validate_email, validate_me, validate_username
 
 
@@ -26,6 +26,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = self.context['request'].user
         title_id = self.context['view'].kwargs.get('title_id')
+
+        score = data.get('score')
+        check_score(score)
 
         if Review.objects.filter(author=user, title=title_id).exists():
             if self.context['request'].method == 'POST':
