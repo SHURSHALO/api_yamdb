@@ -71,7 +71,7 @@ class TitleGenre(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews', 
+        Title, on_delete=models.CASCADE, related_name='reviews',
         verbose_name='title'
     )
     text = models.TextField(
@@ -93,11 +93,11 @@ class Review(models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=('title', 'author'), name='unique_title_author'
-            )
+            ),
         )
         verbose_name = 'отзыв'
         verbose_name_plural = 'Отзывы'
-        
+
     def __str__(self):
         return self.text[:15]
 

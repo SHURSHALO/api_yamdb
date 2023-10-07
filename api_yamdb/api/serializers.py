@@ -1,5 +1,4 @@
-from rest_framework import serializers, exceptions
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Genre, Title, Comment, Review
@@ -9,7 +8,7 @@ from api.validators import validate_email, validate_me, validate_username
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели Review.'''
+    """Сериализатор для модели Review."""
 
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -21,7 +20,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'title', 'text', 'author', 'score', 'pub_date')
         model = Review
-
 
     def validate(self, data):
         user = self.context['request'].user
@@ -36,7 +34,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    '''Сериализатор для модели Comment.'''
+    """Сериализатор для модели Comment."""
 
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
@@ -88,7 +86,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    '''Сериализатор для создания User.'''
+    """Сериализатор для создания User."""
 
     email = serializers.EmailField(
         max_length=254,
@@ -114,7 +112,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class JWTTokenCreateSerializer(serializers.ModelSerializer):
-    '''Сериализатор для создания jwt токена.'''
+    """Сериализатор для создания jwt токена."""
 
     username = serializers.CharField(
         required=True,
@@ -132,7 +130,7 @@ class JWTTokenCreateSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    '''Сериализатор для создания пользователя.'''
+    """Сериализатор для создания пользователя."""
 
     class Meta:
         model = User

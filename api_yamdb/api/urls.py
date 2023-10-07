@@ -4,20 +4,13 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from api.views import (
     CategoryViewSet,
     GenreViewSet,
-    CommentsViewSet,
-    TitleViewSet,
-    ReviewsViewSet,
-)
-
-from api.views import (
-    CategoryViewSet,
-    GenreViewSet,
     TitleViewSet,
     UserCreateViewSet,
+    CommentsViewSet,
+    ReviewsViewSet,
     UserGetTokenViewSet,
     UserViewSet,
 )
-
 
 router_v1 = DefaultRouter()
 
@@ -30,20 +23,15 @@ auth_router_v1 = SimpleRouter()
 auth_router_v1.register(r'signup', UserCreateViewSet, basename='signup')
 auth_router_v1.register(r'token', UserGetTokenViewSet, basename='token')
 
-
-#   REVIEWS
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews', ReviewsViewSet, basename='reviews'
 )
 
-
-#   COMMENTS
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentsViewSet,
     basename='comments',
 )
-
 
 urlpatterns = [
     path('auth/', include('djoser.urls')),
