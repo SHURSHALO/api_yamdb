@@ -48,10 +48,10 @@ class ReviewsViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action in ['list','retrieve']:
             return [permissions.AllowAny()]
-        elif self.action == 'retrieve':
-            return [permissions.AllowAny()]
+        elif self.action == 'update':
+            raise exceptions.MethodNotAllowed('PUT method is not allowed')
         return [IsAdminOrModeratorOrAuthor()]
 
     def perform_create(self, serializer):
@@ -59,10 +59,8 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     pagination_class = pagination.LimitOffsetPagination
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_reviews(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
@@ -71,10 +69,10 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return self.get_reviews().comments.all()
 
     def get_permissions(self):
-        if self.action == 'list':
+        if self.action in ['list','retrieve']:
             return [permissions.AllowAny()]
-        elif self.action == 'retrieve':
-            return [permissions.AllowAny()]
+        elif self.action == 'update':
+            raise exceptions.MethodNotAllowed('PUT method is not allowed')
         return [IsAdminOrModeratorOrAuthor()]
 
     def perform_create(self, serializer):

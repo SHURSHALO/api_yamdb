@@ -22,18 +22,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'text', 'author', 'score', 'pub_date')
         model = Review
 
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('title', 'author'),
-                message='Ваш отзыв уже имеется.',
-            )
-        ]
-
-    def update(self, instance, validated_data):
-        if self.context['request'].method == 'PUT':
-            raise exceptions.MethodNotAllowed('PUT method is not allowed')
-        return super().update(instance, validated_data)
 
     def validate(self, data):
         user = self.context['request'].user
@@ -58,11 +46,6 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'review', 'text', 'author', 'pub_date')
         model = Comment
-
-    def update(self, instance, validated_data):
-        if self.context['request'].method == 'PUT':
-            raise exceptions.MethodNotAllowed('PUT method is not allowed')
-        return super().update(instance, validated_data)
 
 
 class CategorySerializer(serializers.ModelSerializer):
