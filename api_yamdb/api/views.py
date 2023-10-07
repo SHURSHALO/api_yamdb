@@ -33,7 +33,7 @@ from api.serializers import (
 from api.utils import send_confirmation_code
 from api.filters import TitleFilter
 
-from reviews.models import Title, Genre, Category, Review, Comment
+from reviews.models import Title, Genre, Category, Review
 from users.models import User
 
 
@@ -123,7 +123,7 @@ class CategoryViewSet(CreateListDestroyViewSet):
 
 
 class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    '''Представление для создания пользователя.'''
+    """Представление для создания пользователя."""
 
     queryset = User.objects.all()
     serializer_class = CreateUserSerializer
@@ -146,10 +146,10 @@ class UserCreateViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    '''
+    """
     Представление для создания JWT-токена и отправки кода
     для его получения.
-    '''
+    """
 
     queryset = User.objects.all()
     serializer_class = JWTTokenCreateSerializer
@@ -174,7 +174,7 @@ class UserGetTokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    '''Представление  для управления пользователями.'''
+    """Представление  для управления пользователями."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -191,7 +191,7 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['get', 'patch'],
     )
     def me(self, request):
-        '''Получение данных о пользователе.'''
+        """Получение данных о пользователе."""
         serializer = self.get_serializer(
             request.user, data=request.data, partial=True
         )

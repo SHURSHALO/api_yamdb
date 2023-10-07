@@ -6,7 +6,7 @@ from users.utils import Role
 
 
 class User(AbstractUser):
-    '''Модель пользователя с расширенным функционалом для Django приложения.'''
+    """Модель пользователя с расширенным функционалом для Django приложения."""
 
     USERNAME_REGEX = r'^[\w]+[^@\.\+\-]*$'
 
@@ -18,8 +18,8 @@ class User(AbstractUser):
             RegexValidator(
                 regex=USERNAME_REGEX,
                 message='Неверное имя пользователя. '
-                'Допускаются только буквы, цифры и знак подчеркивания.'
-                ' Не может содержать символы «@», «.», «+» или «-».',
+                        'Допускаются только буквы, цифры и знак подчеркивания.'
+                        ' Не может содержать символы «@», «.», «+» или «-».',
             )
         ],
         error_messages={
@@ -58,15 +58,12 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        '''Возвращает True, если пользователь является администратором.'''
+        """Возвращает True, если пользователь является администратором."""
         return self.role == Role.admin.name
 
-    def __str__(self):
-        return self.username
-
-    @property  
+    @property
     def is_moder(self):
-        '''Возвращает True, если пользователь является администратором.'''
+        """Возвращает True, если пользователь является администратором."""
         return self.role == Role.moderator.name
 
     def __str__(self):
