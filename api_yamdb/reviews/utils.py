@@ -13,6 +13,7 @@ def check_year_availability(year):
             'Год выпуска произведения не должен быть больше текущего.'
         )
 
+
 def check_score(score):
     if not (MIN_SCORE <= score <= MAX_SCORE):
         raise ValidationError(
