@@ -34,6 +34,9 @@ pip install -r requirements.txt
 ```
 5. Примените миграции:
 ```
+cd api_yamdb
+```
+```
 python manage.py migrate
 ```
 ## Запуск
