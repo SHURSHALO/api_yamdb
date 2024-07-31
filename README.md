@@ -51,4 +51,3 @@ python manage.py runserver
 https://github.com/vlad786901
 
 https://github.com/NRenat
-
